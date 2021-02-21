@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>HV Calculator</title>
+</head>
+
+<body>
+  <h2>Super Auction Calculator</h2>
+  <input class="s-auction" placeholder="数量" type="number" id="s-auction-num"> x <input class="s-auction" placeholder="心目中合适的单价" type="number" id="s-auction-price">
+  <br><br>
+  <div id="s-auction-result"></div>
+
+  <h2>Gem / Potion Calculator</h2>
+
+  HPBoost: <input class="gem-potion" type="number" id="hpboost"> %<br>
+  MPBoost: <input class="gem-potion" type="number" id="mpboost"> %<br>
+  SPBoost: <input class="gem-potion" type="number" id="spboost"> %<br>
+  HPRestorative: <input class="gem-potion" type="number" id="hprestorative"> %<br>
+  MPRestorative: <input class="gem-potion" type="number" id="mprestorative"> %<br>
+  SPRestorative: <input class="gem-potion" type="number" id="sprestorative"> %<br>
+  <br>
+  <small>HPBoost 指 Ability 和 IW 潜能的加成和。假设 HP 技能点满（+ 100%）打了三件 5J（+ 3 * 10%），HPBoost 就是 130%
+  </small><br>
+  <small>MPBoost 指 Ability 和 IW 潜能的加成和。假设 MP 技能点满（+ 100%）打了两件 5C（+ 2 * 10%），MPBoost 就是 120%</small><br>
+  <small>SPBoost 指 Ability 加成。假设 SP 技能点满（+100%）那么 SPBoost 就是 100%</small><br>
+  <small>Rstorative 指你启用 Better Potion Ability 后 Potion 恢复的 HP/MP/SP 百分比</small>
+  <br><br>
+  <div id="gem-potion-result"></div>
+
+  <script>
+    (() => {
+      function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+          if (timeout) {
+            window.clearTimeout(timeout);
+          }
+          timeout = window.setTimeout(() => {
+            timeout = null;
+            func(...args);
+          }, wait);
+        };
+      }
+
+      function stripFloat(num, precision = 14) {
+        return parseFloat(num.toPrecision(precision));
+      }
+
+      function calcSAuction() {
+        const number = Number(document.getElementById('s-auction-num').value);
+        const price = Number(document.getElementById('s-auction-price').value);
+
+        const total = number * price / 1.03;
+        const best = (total / 1000);
+
+        const getBidPrice = (price) => {
+          if (price < 1000) return `${price}k`;
+          return `${stripFloat(price / 1000)}m`;
+        }
+
+        document.getElementById('s-auction-result').innerText = [
+          `向下取整 ${getBidPrice(Math.floor(best))} 此时单价 ${stripFloat(Math.floor(best) / number * 1000)} 下一次出价可能是 ${getBidPrice(Math.ceil(Math.floor(best) * 1.03))} 那时单价 ${stripFloat(Math.ceil(Math.floor(best) * 1.03) / number * 1000)}`,
+          `向上取整 ${getBidPrice(Math.ceil(best))} 此时单价 ${stripFloat(Math.ceil(best) / number * 1000)} 下一次出价可能是 ${getBidPrice(Math.ceil(Math.ceil(best) * 1.03))} 那时单价 ${stripFloat(Math.ceil(Math.ceil(best) * 1.03) / number * 1000)}`
+        ].join('\n');
+      }
+
+      function calcGemPotion() {
+        const hpboost = Number(document.getElementById('hpboost').value);
+        const mpboost = Number(document.getElementById('mpboost').value);
+        const spboost = Number(document.getElementById('spboost').value);
+        const hprestorative = Number(document.getElementById('hprestorative').value);
+        const mprestorative = Number(document.getElementById('mprestorative').value);
+        const sprestorative = Number(document.getElementById('sprestorative').value);
+
+        document.getElementById('gem-potion-result').innerText = [
+          `HP Gem 在 HP 小于 ${Math.floor(stripFloat(100 * hpboost / (hpboost + 100)))}% 时使用不浪费`,
+          `MP Gem 在 MP 小于 ${Math.floor(stripFloat(50 + 50 * mpboost / (mpboost + 100)))}% 时使用不浪费`,
+          `SP Gem 在 SP 小于 ${Math.floor(stripFloat(75 + 25 * spboost / (spboost + 100)))}% 时使用不浪费`,
+          `HP Potion 在 HP 小于 ${Math.floor(stripFloat(100 - hprestorative + hprestorative * hpboost / (hpboost + 100)))} % 时使用不浪费`,
+          `MP Potion 在 MP 小于 ${Math.floor(stripFloat(100 - mprestorative + mprestorative * mpboost / (mpboost + 100)))} % 时使用不浪费`,
+          `SP Potion 在 SP 小于 ${Math.floor(stripFloat(100 - sprestorative + sprestorative * spboost / (spboost + 100)))} % 时使用不浪费`,
+        ].join('\n');
+      }
+
+      [...document.getElementsByClassName('s-auction')].forEach(el => {
+        el.addEventListener('input', debounce(calcSAuction, 100));
+      });
+      [...document.getElementsByClassName('gem-potion')].forEach(el => {
+        el.addEventListener('input', debounce(calcGemPotion, 100));
+      });
+    })();
+  </script>
+</body>
+
+</html>

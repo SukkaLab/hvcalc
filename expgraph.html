@@ -22,7 +22,17 @@
     const myChart = echarts.init(chartDom);
     const option = {
       tooltip: {
-        trigger: 'axis'
+        trigger: 'axis',
+        formatter: ([{ name, value }]) => {
+          const rawMultiplier = value / 9999999999999;
+          let multiplier = '';
+          if (rawMultiplier <= 1) {
+            multiplier = (rawMultiplier * 100).toFixed(3) + '%';
+          } else {
+            multiplier = rawMultiplier.toFixed(3) + 'x';
+          }
+          return `<b>Level</b> ${name}<br><b>EXP</b> ${value}<br><b>Compare to Lv.500</b> ${multiplier}`;
+        }
       },
       dataZoom: [{
         type: 'inside',

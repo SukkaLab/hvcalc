@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>HV EXP Graph</title>
+</head>
+
+<body>
+  <div id="main" style="height: 80vh;"></div>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.1.0/dist/echarts.min.js"></script>
+  <script>
+    // Calculate the EXP to the level
+    /** @type {([number, number][])} */
+    const levelToExpMap = [[1, 0]];
+
+    for (let lv = 2; lv < 625; lv++) {
+      levelToExpMap.push([lv, Math.round(Math.pow(lv + 3, Math.pow(2.850263212287058, (1 + lv / 1000))))]);
+    }
+
+    const chartDom = document.getElementById('main');
+    const myChart = echarts.init(chartDom);
+    const option = {
+      tooltip: {
+        trigger: 'axis'
+      },
+      dataZoom: [{
+        type: 'inside',
+        start: 0,
+        end: 80.1
+      }, {
+        start: 0,
+        end: 80.1
+      }],
+      xAxis: {
+        type: 'category',
+        data: levelToExpMap.map(([lv]) => lv)
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [{
+        data: levelToExpMap.map(([, exp]) => exp),
+        type: 'line',
+        smooth: true
+      }]
+    };
+
+    myChart.setOption(option);
+  </script>
+</body>
